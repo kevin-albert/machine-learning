@@ -1,4 +1,5 @@
 %% Trivial 2d CNN example
+addpath('../');
 % Setup network
 % Input layer - 20x20 image with 3 channels
 x = rand(20, 20, 3);
@@ -69,10 +70,10 @@ for i = 1:epochs
     [ de2, dW3, db3 ] = conv2dBackward(e2, W3, dh3);
     
     dh2 = eluBackward(e2, de2);
-    [ de1, dW2, db2 ] = conv2dBackward(e1, W2, dh2, true);
+    [ de1, dW2, db2 ] = conv2dBackward(e1, W2, dh2);
     
     dh1 = eluBackward(e1, de1);
-    [   ~, dW1, db1 ] = conv2dBackward(x,  W1, dh1, true); 
+    [   ~, dW1, db1 ] = conv2dBackward(x,  W1, dh1); 
     
     %% SGD
     W1 = W1 - alpha * dW1;

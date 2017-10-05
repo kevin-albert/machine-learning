@@ -13,5 +13,5 @@ for i = 1:numel(nc_grads)
     nc_grads(i) = (J2-J1)/(2*epsilon);
 end
 
-diff = norm(f_grads-nc_grads);
+diff = norm(f_grads(:)-nc_grads(:));
 

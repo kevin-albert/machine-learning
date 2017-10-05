@@ -18,9 +18,9 @@ J = sum((y(:) - a3(:)) .^ 2) / 2;
 % Backward pass
 d3 = a3 - y;
 dz3 = eluBackward(a3, d3);
-[d2, dW2, db2] = conv2dBackward(a2, W2, dz3, false);
+[d2, dW2, db2] = conv2dBackward(a2, W2, dz3);
 dz2 = eluBackward(a2, d2);
-[~, dW1, db1] = conv2dBackward(x, W1, dz2, true);
+[~, dW1, db1] = conv2dBackward(x, W1, dz2);
 
 grad = [ reshape(dW1, [], 1);
          reshape(db1, [], 1);
