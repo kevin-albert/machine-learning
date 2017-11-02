@@ -94,8 +94,8 @@ cols = 1+L*N;
 Wy = reshape(Theta(offset:end), [], cols);
 
 % lstm output activations
-h_all = permute(states(:, 1+5*N:6*N, :), [3, 1, 2]);
-h_all = reshape(h_all, M, []);
+h_all = permute(states(:, 1+5*N:6*N, :), [3, 2, 1]);
+h_all = reshape(h_all, M, L*N);
 A = [ ones(M, 1) h_all ];
 
 % output layer + softmax activation
@@ -136,9 +136,12 @@ end
 
 % Recurrent errors
 dC = zeros(L, N, M);
-dA = zeros(L, N, M);
-dA = reshape(dH*Wy(:, 2:end), M, L, N);
-dA = permute(dA, [2, 3, 1]);
+% dA = zeros(L, N, M);
+
+dA = reshape(dH*Wy(:, 2:end), M, N, L);
+dA = permute(dA, [3, 2, 1]);
+
+% dA(L, :, :) = permute(dH*Wy(:, 2:end), [2, 1]);
 
 for t = M:-1:1      % for each time step
     offset = length(Theta)-numel(Wy)+1;
