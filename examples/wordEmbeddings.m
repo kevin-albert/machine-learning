@@ -57,8 +57,23 @@ fprintf('Computing SVD\n');
 [U,S,V] = svds(PMI, k);
 
 fprintf('Done\n');
-
 save wordVecData
 
-%% Try it out
+%% Compute an analogy
+fprintf('Compute a simple analogy\n');
+
+% "captain" is to "picard" like _____ is to "riker"
+captain = U(encoder('captain'), :);
+picard  = U(encoder('picard'),  :);
+riker   = U(encoder('riker'),   :);
+what = picard - captain + riker;
+
+% use our change of basis matrix to get a sparse representation in R^m
+% then find the strongest component. that is likely the index of our 
+% analogous word
+[~, I] = sort(what * U', 'descend');
+answer = dictionary(I(1));
+
+% answer = "commander"
+fprintf('"captain" is to "picard" like "%s" is to "riker"\n', answer{1});
 
