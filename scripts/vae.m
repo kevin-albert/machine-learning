@@ -1,11 +1,12 @@
 %% Setup, load data
+addpath('..');
 
 % training sequence params
-epochs  = 100;
+epochs  = 50;
 batch   = 200;
 
 % optimization params
-alpha   = 0.001;
+alpha   = 0.003;
 beta1   = 0.9;
 beta2   = 0.999;
 epsilon = 1e-8;
@@ -16,7 +17,7 @@ lambda  = 0.001;
 % topology
 size_input = 28*28;
 size_hidden = 200;
-size_latent = 2;
+size_latent = 3;
 
 W_encoder = randn(size_input, size_hidden) / sqrt(size_input);
 b_encoder = rand(size_hidden, 1);
@@ -39,8 +40,8 @@ t = 1;
 
 
 addpath('..');
-[X, Y] = loadMNIST('fashion-mnist/t10k-images-dx3-ubyte', ...
-                   'fashion-mnist/t10k-labels-idx1-ubyte');
+[X, Y] = loadMNIST('fashion-mnist/train-images-idx3-ubyte', ...
+                   'fashion-mnist/train-labels-idx1-ubyte');
 N = size(X, 3);
 X = reshape(X, [], N);
 
@@ -63,21 +64,39 @@ for epoch = 1:epochs
     fprintf('[%3d] J = %f\n', epoch, mean(E(e_start+1:e_end)));
 end
 
-%% Try it out
-grid_size = 20;
-v = linspace(-3, 3, grid_size);
-[p,q] = meshgrid(v, v);
-Z = permute([p(:) q(:)], [2, 1]);
-X_d = vaeDecode(Z, Theta, size_input, size_hidden, size_latent);
+%% Try out decoder
 
-img = zeros(28 * grid_size);
-X_img = reshape(X_d, 28, 28, grid_size, grid_size);
-for i = 1:grid_size
-    yi = (i-1)*28+1;
-    for j = 1:grid_size
-        xi = (j-1)*28+1;
-        img(yi:yi+27, xi:xi+27) = X_img(:,:,i,j);
+k = 0;
+grid_size = 10;
+images = zeros(28*grid_size, 28*grid_size, grid_size);
+v = linspace(-1, 1, grid_size);
+[p,q] = meshgrid(v, v);
+    
+for z = linspace(-1, 1, grid_size)
+    
+    k = k + 1;
+    Z = [ permute([p(:) q(:)], [2, 1]);
+          ones(1, grid_size.^2)*z ];
+    X_d = vaeDecode(Z, Theta, size_input, size_hidden, size_latent);
+
+    X_img = reshape(X_d, 28, 28, grid_size, grid_size);
+    for i = 1:grid_size
+        yi = (i-1)*28+1;
+        for j = 1:grid_size
+            xi = (j-1)*28+1;
+            images(yi:yi+27, xi:xi+27, k) = X_img(:,:,i,j);
+        end
     end
+    
+    figure(k);
+    imagesc(v,v,images(:,:,k));
+    colormap bone
 end
-imagesc(v,v,img);
-colormap bone
+
+%% Try out encoder
+[X_cv, Y_cv] = loadMNIST('fashion-mnist/t10k-images-dx3-ubyte', ...
+                         'fashion-mnist/t10k-labels-idx1-ubyte'); 
+N = size(X_cv, 3);
+X_cv = reshape(X_cv, [], N);
+coords = vaeEncode(X_cv, Theta, size_input, size_hidden, size_latent);
+scatter3(coords(1,:), coords(2,:), coords(3,:), 1, Y_cv / 9);

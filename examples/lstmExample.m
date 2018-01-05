@@ -74,7 +74,7 @@ for epoch = 1:epochs
         y = [Y(i:j, :); zeros(batch-j, num_classes)];
         x(j:batch, char2num(+' ')) = 1;
         y(j:batch, char2num(+' ')) = 1;
-        [ ~, states, J, Theta_g ] = lstmBptt(x, states, Theta, y, lambda, dropout);
+        [ ~, states, J, Theta_g ] = lstmBpttBatched(x, states, Theta, y, lambda, dropout);
         [Theta, Theta_m, Theta_v] = adam(alpha, beta1, beta2, epsilon, t, ...
                                          Theta, Theta_g, Theta_m, Theta_v);
         t = t + 1;

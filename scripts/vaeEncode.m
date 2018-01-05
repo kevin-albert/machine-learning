@@ -1,4 +1,4 @@
-function [ z ] = vaeEncode( x, Theta )
+function [ z ] = vaeEncode( x, Theta, size_input, size_hidden, size_latent )
 addpath('..');
 m = size(x,2);
 
